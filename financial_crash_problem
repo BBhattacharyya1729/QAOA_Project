@@ -1,1 +1,37 @@
+from qiskit import QuantumCircuit, Aer, transpile, assemble, execute
+from qiskit.visualization import plot_histogram
+
+# Define parameters
+n = 3  # number of institutions
+q = 5  # number of bits per institution
+
+# Example market values (in binary form)
+market_values = [10, 15, 5]  # Example market values
+market_values_bin = [format(val, f'0{q}b') for val in market_values]
+
+# Create a quantum circuit with q qubits per institution
+qc = QuantumCircuit(n * q)
+
+# Encode market values into qubits
+for i in range(n):
+    for j in range(q):
+        if market_values_bin[i][j] == '1':
+            qc.x(i * q + j)  # Apply X gate if the bit is 1
+
+# Example of quantum gates for simulation
+# Add more gates here to simulate the financial model
+qc.h(range(n * q))  # Apply Hadamard gate to all qubits
+
+# Measure the qubits
+qc.measure_all()
+
+# Simulate the circuit
+simulator = Aer.get_backend('qasm_simulator')
+compiled_circuit = transpile(qc, simulator)
+qobj = assemble(compiled_circuit)
+results = execute(qc, backend=simulator).result()
+counts = results.get_counts()
+
+# Plot the results
+plot_histogram(counts)
 
